@@ -1,0 +1,22 @@
+CREATE TABLE sales(
+	id INT PRIMARY KEY,
+	transaction_id INT NOT NULL,
+	bill_no	INT NOT NULL,
+	bill_date TIMESTAMP NOT NULL,
+	bill_location VARCHAR(255) NOT NULL,
+	customer_id	INT NOT NULL,
+	product_id	INT NOT NULL,
+	qty	INT NOT NULL,
+	uom	VARCHAR(255) NOT NULL,
+	price	FLOAT NOT NULL,
+	gross_price	FLOAT NOT NULL,
+	tax_pc	FLOAT NOT NULL,
+	tax_amt	FLOAT NOT NULL,
+	discount_pc	FLOAT NOT NULL,
+	discount_amt	FLOAT NOT NULL,
+	net_bill_amt	FLOAT NOT NULL,
+	created_by	VARCHAR(255) NOT NULL,
+	updated_by	VARCHAR(255),
+	created_date	TIMESTAMP NOT NULL,
+	updated_date TIMESTAMP
+)
