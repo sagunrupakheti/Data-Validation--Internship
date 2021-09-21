@@ -1,0 +1,29 @@
+---Timesheet
+
+1. Check if there are employees who did not work for the day but have a shift type.
+2. Check if all the departments in timesheet also exist in employee.
+3. Check if employees have worked in more than one department in a day
+4. Check if any employees don't have a timesheet
+5. Check if employees have worked in their respective department
+
+--Employee
+
+1. Check if any manager is not assigned to an employee
+2. Check if there are employees who are inactive but do not have a term date
+3. Check if all the active employees are aged between 18 and 60 (legal working age).
+4. Check if part time employees have salaries greater than 10,000
+
+--	Product
+
+1. Check if any mrp of a product is lesser than its price.
+2. Check if there are any inactive products.
+3. Check if any product has been registered twice with different price.
+4. Check if there are any heavy products (more than 1000)
+
+--Sales
+
+1. Check if any inactive product has sales
+2. Check if any bill has gross price with tax amount unequal to net_bill_amt
+3. Check if bill date is later or before than created
+4. Check if a person has different bills in the same time
+5. Check if same bill numbers have different bill dates
