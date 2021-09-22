@@ -40,7 +40,7 @@ SELECT
         ELSE 'passed'
     END AS test_status
 FROM employee
-WHERE term_reason <>'' AND is_active=true;
+WHERE term_date <> NULL AND is_active=true;
 ~~~
 ![img_3.png](img_3.png)
 
@@ -83,7 +83,7 @@ SELECT
         ELSE 'passed'
     END AS test_status
 FROM sales
-WHERE updated_by <>'' AND updated_date is null;
+WHERE updated_by <> NULL AND updated_date is NULL;
 ~~~
 ![img_6.png](img_6.png)
 ![img_7.png](img_7.png)
@@ -108,13 +108,18 @@ WHERE hours_worked>24
   
 ~~~sql
 SELECT
-    COUNT(*) AS false_on_call,
-    CASE
-        WHEN COUNT(*) > 1 THEN 'failed'
-        ELSE 'passed'
-    END AS test_status
-FROM timesheet
-WHERE  on_call_hour>0 AND was_on_call= false
+	COUNT(*) AS false_on_call,
+	CASE 
+		WHEN COUNT(*) > 0 THEN 'failed' 
+		ELSE 'passed' 
+	END AS test_status
+FROM
+(
+SELECT employee_id, shift_date FROM timesheet t  WHERE t.was_on_call IS True
+EXCEPT
+SELECT CAST(employee_id as INT), CAST(punch_apply_date AS DATE)
+FROM timesheet_raw tr WHERE tr.paycode = 'ON_CALL' 
+GROUP BY tr.employee_id, tr.punch_apply_date ) record;
 ~~~
 
 ![img_9.png](img_9.png)
@@ -123,13 +128,18 @@ WHERE  on_call_hour>0 AND was_on_call= false
 * Check if the break is true for employees who have not taken a break at all.
 ~~~sql
 SELECT
-    COUNT(*) AS false_break,
-    CASE
-        WHEN COUNT(*) > 1 THEN 'failed'
-        ELSE 'passed'
-    END AS test_status
-FROM timesheet
-WHERE  break_hour=0 AND has_taken_break= true
+	COUNT(*) AS false_on_call,
+	CASE 
+		WHEN COUNT(*) > 0 THEN 'failed' 
+		ELSE 'passed' 
+	END AS test_status
+FROM
+(
+SELECT employee_id, shift_date FROM timesheet t  WHERE t.was_on_call IS True
+EXCEPT
+SELECT CAST(employee_id as INT), CAST(punch_apply_date AS DATE)
+FROM timesheet_raw tr WHERE tr.paycode = 'ON_CALL' 
+GROUP BY tr.employee_id, tr.punch_apply_date ) record;
 ~~~
 ![img_10.png](img_10.png)
 
@@ -142,7 +152,7 @@ WHERE  break_hour=0 AND has_taken_break= true
 			ELSE 'passed'
 		END AS test_status
 	FROM timesheet
-	WHERE  shift_end_time > CAST('15:00:00' AS time) AND shift_type <>'Evening'
+	WHERE  shift_start_time > CAST('19:00:00' AS time) AND shift_type <>'Night'
 ~~~
 
 ![img_11.png](img_11.png)

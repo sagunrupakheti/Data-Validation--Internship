@@ -26,7 +26,7 @@ SELECT
         ELSE 'passed'
     END AS test_status
 FROM employee
-WHERE term_reason <>'' AND is_active=true;
+WHERE term_date <> NULL AND is_active=true;
 
 --4. Check if the same product is listed more than once in a single bill.
 SELECT
@@ -51,13 +51,14 @@ WHERE customer_id NOT IN(SELECT customer_id FROM customer);
 
 --6. Check if there are any records where updated_by is not empty but updated_date is empty.
 SELECT
-    COUNT(*) AS false_active,
+    COUNT(*) AS false_update,
     CASE
         WHEN COUNT(*) > 1 THEN 'failed'
         ELSE 'passed'
     END AS test_status
 FROM sales
-WHERE updated_by <>'' AND updated_date is null;
+WHERE updated_by <> NULL AND updated_date is NULL;
+
 
 --7. Check if there are any hours worked that are greater than 24 hours.
 
@@ -71,31 +72,39 @@ FROM timesheet
 WHERE hours_worked>24
 
 --8. Check if non on-call employees are set as on-call.
-SELECT
-    COUNT(*) AS false_active,
-    CASE
-        WHEN COUNT(*) > 1 THEN 'failed'
-        ELSE 'passed'
-    END AS test_status
-FROM timesheet
-WHERE  on_call_hour>0 AND was_on_call= false
+	COUNT(*) AS false_on_call,
+	CASE
+		WHEN COUNT(*) > 0 THEN 'failed'
+		ELSE 'passed'
+	END AS test_status
+FROM
+(
+SELECT employee_id, shift_date FROM timesheet t  WHERE t.was_on_call IS True
+EXCEPT
+SELECT CAST(employee_id as INT), CAST(punch_apply_date AS DATE)
+FROM timesheet_raw tr WHERE tr.paycode = 'ON_CALL'
+GROUP BY tr.employee_id, tr.punch_apply_date ) record;
 
 --9. Check if the break is true for employees who have not taken a break at all.
 SELECT
-    COUNT(*) AS false_active,
-    CASE
-        WHEN COUNT(*) > 1 THEN 'failed'
-        ELSE 'passed'
-    END AS test_status
-FROM timesheet
-WHERE  break_hour=0 AND has_taken_break= true
+	COUNT(*) AS false_on_call,
+	CASE
+		WHEN COUNT(*) > 0 THEN 'failed'
+		ELSE 'passed'
+	END AS test_status
+FROM
+(
+SELECT employee_id, shift_date FROM timesheet t  WHERE t.was_on_call IS True
+EXCEPT
+SELECT CAST(employee_id as INT), CAST(punch_apply_date AS DATE)
+FROM timesheet_raw tr WHERE tr.paycode = 'ON_CALL'
+GROUP BY tr.employee_id, tr.punch_apply_date ) record;
 
 --10. Check if the night shift is not assigned to the employees working on the night shift.
-SELECT
-    COUNT(*) AS false_active,
-    CASE
-        WHEN COUNT(*) > 1 THEN 'failed'
-        ELSE 'passed'
-    END AS test_status
-FROM timesheet
-WHERE  shift_end_time > CAST('15:00:00' AS time) AND shift_type <>'Evening'
+SELECT COUNT(*) AS night_shift_check,
+		CASE
+			WHEN COUNT(*) > 1 THEN 'failed'
+			ELSE 'passed'
+		END AS test_status
+	FROM timesheet
+	WHERE  shift_start_time > CAST('19:00:00' AS time) AND shift_type <>'Night'
