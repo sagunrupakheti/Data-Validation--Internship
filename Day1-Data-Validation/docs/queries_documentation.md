@@ -135,10 +135,10 @@ SELECT
 	END AS test_status
 FROM
 (
-SELECT employee_id, shift_date FROM timesheet t  WHERE t.was_on_call IS True
+SELECT employee_id, shift_date FROM timesheet t  WHERE t.has_taken_break IS True
 EXCEPT
 SELECT CAST(employee_id as INT), CAST(punch_apply_date AS DATE)
-FROM timesheet_raw tr WHERE tr.paycode = 'ON_CALL' 
+FROM timesheet_raw tr WHERE tr.paycode = 'BREAK' 
 GROUP BY tr.employee_id, tr.punch_apply_date ) record;
 ~~~
 ![img_10.png](img_10.png)
