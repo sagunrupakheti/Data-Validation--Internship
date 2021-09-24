@@ -128,7 +128,7 @@ GROUP BY tr.employee_id, tr.punch_apply_date ) record;
 * Check if the break is true for employees who have not taken a break at all.
 ~~~sql
 SELECT
-	COUNT(*) AS false_on_call,
+	COUNT(*) AS false_on_break,
 	CASE 
 		WHEN COUNT(*) > 0 THEN 'failed' 
 		ELSE 'passed' 
